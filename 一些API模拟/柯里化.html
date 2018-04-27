@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<script type="text/javascript">
+		function FixedParamsCurry(fn) {
+			var args = Array.prototype.slice.call(arguments, 1);
+			return function () {
+				args = args.concat(Array.prototype.slice.call(arguments));
+				return fn.apply(this, args);
+			}
+		}
+		function Curry(fn, length) {
+			var length = length || fn.length;
+			return function () {
+				if(arguments.length < length) {
+					// return arguments.callee;  
+					//我的最初思路是闭包保存参数于数组中，当参数数组的长度大于柯里化函数的length执行；否则返回原函数（此时参数已经添加到了参数数组中去了）；
+					// 利用的是 argument.callee;但是经过测试；是有问题的；这样不行(由于参数数组一直累计);
+					// 
+
+
+					//正确思路
+					var arr = [fn].concat(Array.prototype.slice.call(arguments));
+					return Curry(FixedParamsCurry.apply(this, arr), length - arguments.length);
+
+					//判断传入的参数个数是否大于fn的形参个数，不大于的话；
+					//return 固定参数的柯里化函数；（这样的话就必须保证第二次传入的参数未剩余的参数个数）
+					//所以；要用Curry 函数包装起来；（Curry函数期望传入的参数为应用的参数）
+					//  注意一点，此时的Curry第二个参数length  应该指定具体的值；因为此时的第一个参数实际上为经过包装后的原函数；
+					// 它的形参个数为0；所以要指定此时的length值
+					// length - arguments.length(原函数形参的个数 - 已经传入的参数个数);
+
+
+				}
+				return fn.apply(this, arguments);
+
+			}
+		}
+		function add(a, b, c, d) {
+			return a + b + c + d;
+		}
+	</script>
+</body>
+</html>
