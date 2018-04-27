@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../bootstrap-3.3.7-dist/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="function">
+			<div class="page-header">
+				<h2>函数参数</h2>
+			</div>
+			<p>在ES6中，函数参数可以使用默认值</p>
+			<pre>
+				<var>
+					function foo(x = 5, y = 10) {
+						console.log(x, y)
+					}
+					foo()   //  5, 10
+					foo(null, 5)		// null, 5
+					foo(undefined, 7)	// 5, 7
+
+					function bar(x = baz(), y = 10) {
+						console.log(x, y);
+					}
+					bar(10, 10)    // 10, 10
+					bar()   		// baz  is not defined
+				</var>
+			</pre>
+			<p>当对应的参数为undefined时，取默认值，而且是在对应的参数<code>严格等于undefined</code>时，才会检查默认值的语法是否合法，意即是一个<code>惰性求值</code>的过程</p>
+			<p>在看一些例子</p>
+			<pre>
+				<var>
+					function foo(x, y) {
+						console.log(x)
+					}
+					foo(7, 7)     // 7
+ 
+					作用域 Local: {x: 7, y: 7}   ===> window
+
+					----------------------------------
+					function foo(x = 5, y = 10) {
+						console.log(x)
+					} 
+					foo(7, 7)   // 7;
+
+					作用域   Local:{x: 7, y: 7}  ==> window
+
+					----------------------------
+					function foo(x = 5, y = 10) {
+						let x = 10;
+						console.log(x)
+					}
+					foo(7, 7)  // Identifier 'x' has already been declared
+
+					这个不能打断点，直接报错
+					----------------------------------
+
+					function foo(x = 5, y = 10) {
+						var x = 10;
+						console.log(x)
+					}
+					foo(7, 7) 		// 10
+
+					此时作用域是这样的  Block:{x: 10} ===> Local:{x: 7, y : 7} ==> window
+				</var>
+			</pre>
+			<p>函数参数是默认申明的，所用不能使用<code>let 和const</code>再次申明变量</p>
+			<p>在参数设置了默认值，函数进行声明初始化时，参数会形成一个独特的作用域，初始化完成，作用域就会消失。不设置参数默认值时， 是不会出现这种情况的</p>
+			<p>如果函数参数使用了默认值，剩余参数，解构赋值的情况下就不能显示的制定严格模式，否则会报错</p>
+			<p>这样做的原因是：严格模式适用于函数参数和函数体，但是函数参数先于函数体执行，而只有执行函数体的时候，才能知道是否采用了严格模式</p>
+		</div>
+	</div>
+</body>
+</html>

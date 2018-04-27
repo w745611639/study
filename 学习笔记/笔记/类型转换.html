@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../bootstrap-3.3.7-dist/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="type-cast">
+			<div class="page-header">
+				<h2>类型转换</h2>
+			</div>
+			<p>将值从一种类型转换到另一种类型通常称为类型转换,这是显示类型转换</p>
+			<p>隐式的情况称为隐式强制类型转换</p>
+			<p>显示类型转换发生在静态语言的编译阶段，隐式类型转换发生在动态类型语言的运行阶段(runtime)</p>
+			<h3>toString</h3>
+			<p>基本类型的字符串化规则是: <code>null转换成"null", undefined 转换成"undefined", true转换成"true"</code></p>
+			<p>对于普通对象来说，除非自己定义，否则toString返回的结果是内部<code>[[class]]</code>的值<code>"[object Object]"</code></p>
+			<p><code>Array.prototype</code>重新定义了<code>ToString</code>方法</p>
+			<pre>
+				<var>
+					var a = null;
+					var b = undefined;
+					var num = 123;
+					var arr = [1, 2, 3];
+					var obj = {};
+					var reg = /a/;
+					var bool = true;
+					function foo() {}
+					console.log(String(a)); 				// "null"
+					console.log(String(b));					// "undefined"
+					console.log(num.toString());			// "123"
+					console.log(arr.toString());			// "[1, 2, 3]"
+					console.log(obj.toString());			// "[object Object]"
+					console.log(reg.toString());			// "/a/"
+					console.log(bool.toString())  			/ "true"
+					console.log(foo.toString());			// "function foo() {}"
+				</var>
+			</pre>
+			<h3>JSON.stringify</h3>
+			<p>对于大多数简单的值来说，<code>JSON字符串化</code>的结果和<code>TOString()</code>的效果一致</p>
+			<p>所有安全的JSON值(JSON-safe)都能够使用<code>JSON.stringify()字符串化</code></p>
+			<p>安全的JSON值指的是能够呈现为有效的JSON格式的值</p>
+			<p>不安全的JSON值有. <code>undefined、 function 、 symbol(ES6+) 、包含循环引用(对象之间相互引用，形成一个无限循环)的对象</code>不符合JSON的结构标准</p>
+			<pre>
+				<var>
+					var a = undefined;
+					function foo() {}
+					var sym = symbol("12");
+					console.log(JSON.stringify(a))   					// undefined 
+					console.log(JSON.stringify(foo))  					// undefined
+					console.log(JSON.stringify(sym))  					// undefined
+					console.log(JSON.stringify([1, 2, undefined])) 				// "[1, 2, null]"
+					console.log(JSON.stringify({
+						a: 10,
+						say: function () {}
+					}));									// "{"a" : 10}"
+
+					console.log(JSON.stringify([1, 2, function () {}, undefined]))  	//"[1, 2, null, null]"
+				</var>
+			</pre>
+
+			<p>在数组中，返回<code>null</code> 以保证数组结构不变</p>
+			<p>在对象，会忽略上述值</p>
+
+			<p>如果一个对象定义了<code>toJSON</code>方法,<code>JSON</code>字符串化时会首先调用<code>toJSON</code>方法, 然后用它的返回值进行序列化</p>
+			<p class="alert alert-warning">注意一点: 很多人认为toJSON返回的JSON字符串化后的值，其实不然，toJSON方法应该是返回一个适当的值，然后将该值进行字符串化，也就是说，toJSON方法应该返回一个安全的JSON值，而不是返回一个JSON字符串</p>
+			<pre>
+				<var>
+					var obj = {
+						val: [1, 2, 3],
+						toJSON: function () {
+							return this.val.slice(1)
+						}
+					};
+					var obj2 = {
+						val: [1, 2, 3],
+						toJSON: function () {
+							return "[" + this.val.slice(1).join() + "]"
+						}
+					};
+
+					console.log(JSON.stringify(obj));			// "[2, 3]"
+					console.log(JSON.stringify(obj2)) 			/// ""[2, 3]""
+				</var>
+			</pre>
+			<p>我们可以向<code>JSON.stringify()</code>传递一个可选参数<code>replacer</code>, 可以是<code>数组 或者函数</code>， 用于指定对象序列化时，哪些属性应该怎么处理</p>
+			<p>如果<code>replacer</code>是一个数组，那么他必须是一个字符串数组，其中包含需要序列化的对象的属性名，除此之外的属性将会被忽略</p>
+			<p><code>replace</code>也可以是一个函数，除此之外，<code>JSON.stringify</code>还可以接收第三个参数，用于指定输出字符的缩进格式，为正整数时，指定每级缩进多少字符</p>
+
+			<pre>
+				<var>
+					var o1 = {
+						name: "wang",
+						age: 10,
+						sex: "male",
+						hobby: "movie",
+						val: [1, 2, 3]
+					};
+
+					console.log(JSON.stringify(o1, ["name", "age", "sex"]));
+					// "{"name": "wang", "age": 10, "sex": "male"}"
+
+					console.log(JSON.stringify(o1, function (k, v) {
+						if(k !== "hobyy") {
+							console.log(k)
+							return v;
+						}
+					}));
+
+					//		我是来描述空 
+					//		name
+					//		age
+					//		sex
+					// 		0
+					// 		1
+					// 		2
+					//      "{"name": "wang", "age": 10, "sex": "male", "val": [1, 2, 3]}"
+
+
+
+					console.log(JSON.stringify(o1, null, 6));
+					/*"{
+							"name": "wang",
+							"age": 10,
+							"sex": "male",
+							"val": [
+									1, 
+									2, 
+									3
+							]
+					   }"
+					*/
+	
+					console.log(JSON.stringify(o1, null, "------"));
+					/*
+						"{
+						 ------"name": "wang",
+						 ------"age": 10,
+						 ------"sex": "male",
+						 ------"val": [
+						 ------------1,
+						 ------------2,
+						 ------------3
+						 ------]
+						}"
+					*/
+				</var>
+			</pre>
+
+			<h2>ToNumber</h2>
+			<p>有时候我们需要将非数字值转换成数字，用于数算运算</p>
+			<p><code>null, false转换成0</code>, <code>undefined转换成 NaN</code></p>
+			<p><code>ToNumber()</code>会将8进制，16进制转换成10进制</p>
+			<pre>
+				<var>
+					Number(undefined)  // NaN
+					Number(false)   // 0
+					Number(null) 	// 0
+					Number(025)  	//  21
+					Number(0xff)  	// 255
+ 				</var>
+			</pre>
+			<p>如果能转换成数字，就转化为具体的数字，否则为<code>NaN</code></p>
+			<p class="alert alert-warning">对象(包括数组)会首先被转换成对应的基本类型值，如果返回的是非数字的基本类型值，那么还会遵循上述规则进行转换</p>
+			<p>为了将值转换成基本类型值，抽象操作ToPrimitive会首先检查该值是否有<code>valueOf()</code>方法，如果有且返回原始值，那么将返回的原始值转换数字。否则检查是否有<code>ToString()</code>方法，同样，如果返回原始值，那么将其转换成数字</p>
+			<p>如果<code>valueOf(), ToString()</code>方法均不返回原始值，那么会报错<code>TypeError</code></p>
+			<pre>
+				<var>
+					var obj = {a: 1, b: 2};
+					Number(obj)       	// NaN
+					obj.valueOf()       // {a: 1, b: 2}
+					obj.toString = function () {
+						return 10
+					}
+					Number(obj)  		// 10
+
+					obj.toString = function () {
+						return this;
+					}
+
+					Number(obj)   		// Uncaught TypeError: Cannot convert object to primitive value at Number
+
+					obj.valueOf = function () {
+						return this.a + this.b
+					}
+					Number(obj)    		// 3
+				</var>
+			</pre>
+
+			<h3>ToBoolean</h3>
+			<p class="alert alert-warning">
+				null, undefined, 0, -0, false, NaN, ""  转换成布尔值为false;其他为true
+			</p>
+
+			<h3>parseInt</h3>
+			<p><code>parseInt()</code>接收两个参数，第一个为需要被转换的值，第二个参数（可选）为基数，即需要转换成什么进制的数字,范围是(0-36),如果为0，会忽略(可能不同浏览器处理结果不同)，为1，转换成NaN,</p>
+			<p><code>parseInt()</code>首先会看字符串的第一个能否转换成数字，如果能，则继续看下去，直到不能转换成数字为止，截取能转换成数字的首部，转换成数字。 否则转换成NaN</p>
+			<pre>
+				<var>
+					var str = "15px";
+					var str2 = "154fdf";
+					var str3 = "fs1";
+					parseInt(str);        // 15
+					parseInt(str2);       // 15
+					parseInt(str3);       // NaN
+				</var>
+			</pre>
+			<p class="alert alert-warning">
+				注意一点：parseInt()会根据第二参数的值，先转换成对应的进制，再转换成数字
+			</p>
+			<pre>
+				<var>
+					parseInt(025, 8)       // 17
+					parseInt(0xff)   	   // 255
+					parseInt(0xff, 6)   	   // 107
+					parseInt("z", 36)      // 35
+					parseInt("z")      		// NaN
+					parseInt("z", 16)		// NaN		
+					parseInt("oxffpx", 16)  // 255
+					parseInt("aa", 20)     //  210
+				</var>
+			</pre>
+			<p>我们来看上述代码到底是怎么转换的</p>
+			<p>看第一个 ,首先025 被认为是8进制， 转换成21 所以就为<code>parseInt(21, 8)</code> 结果为2*8 + 1 = 17</p>
+			<p>第二个：0xff 16进制 转换成255 ，默认为10进制，所以结果是255</p>
+			<p>第三个: 同理转换成255, 被认为是6进制， 转换成10进制的结果就是2 * 6 *6 + 5 *6 + 5 = 107</p>
+			<p>因为8进制和16进制，在js中有方法来描述，所以可以不加基底，也能正确的转化成对应的数值</p>
+			<p>但是如果是其他的进制，就必须给第二个参数，确定进制(当然10进制，可以省略)</p>
+			<p>所以<code>parseInt("z", 36)</code>被认为是36进制， z在36进制中代表35,所以结果就为35</p>
+			<p>同理如果<code>不传或者传入的进制中没有这个字符</code>，那么结果就是NaN</p>
+			<p class="alert alert-warning">ES6中symbol不能转换成数字,可以转换成字符串和布尔值</p>
+		</div>
+	</div>
+</body>
+</html>

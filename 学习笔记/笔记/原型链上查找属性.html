@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../bootstrap-3.3.7-dist/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="find">
+
+			<div class="page-header">
+				<h2>关于对象赋值的操作</h2>
+			</div>
+			<pre>
+				<var>
+					情况一：
+					var father = {name: "wang"};
+					var son = {age: 10};
+					son.__proto__ = father;
+					console.log(son.name)  		// "wang"
+					son.name = "wu";
+					console.log(son.name) 		// "wu"
+					-----------------------------------------
+
+					情况二：
+					var father = {};
+					Object.defineProperty(father, "name", {
+						value: "wang",
+						writable: false
+					});
+					var son = {age: 10};
+					son.__proto__ = father;
+					console.log(son.name)  		// "wang";
+					son.name = "wu";
+					console.log(son.name)   	// "wang";
+
+					----------------------------------------
+
+					var father = {};
+					Object.defineProperty(father, "name", {
+						get: function () {
+							return this._name;
+						},
+						set: function (newvalue) {
+							this._name = newvalue;
+						}
+					});
+					var son = {};
+					son.__proto__ = father;
+					son.name = "wang"; 
+
+					console.log(son) 		 //  {_name: "wang", name: (...)}
+					console.log(son.name)    // "wang"
+ 				</var>
+			</pre>
+			<p>由上述代码可知</p>
+			<p>当<code>son.name = "wu"</code>时，不是简单的进行赋值操作</p>
+			<p>1.会看son对象是否有name属性，如果有且<code>wirtable: true</code>就进行修改操作,如果有但是<code>wirtable: false</code>那么不会修改，且严格模式报错</p>
+			<p>2.如果son对象没有该属性, 那么会上他的<code>原型链</code>上去查找, 如果有，且<code>wirtable: true</code>, 那么就会在<code>son</code>对象上添加<code>name</code>属性</p>
+			<p>如果原型链上有<code>name</code>属性，但是<code>wirtable: false</code>, 那么<code>son.name = "wu</code>那么无法修改已有属性或者给<code>son</code>添加属性，而且严格模式会报错</p>
+			<p>3.如果原型链上存在foo且他是一个<code>setter</code>，那么一定会调用这个<code>setter</code>, 属性不会添加到son对象上，也不会重新修改setter</p>
+			<p>4.如果对象上没有，原型链上也米有，那就是一个简单赋值操作</p>
+			<div class="alert alert-warning">
+				<p>由此可见，通过<code>son.name</code> 去设置一个属性时，存在着许多可能性,可能成功，也可能失败</p>
+				<p>可以通过<code>Object.defineProperty</code>去设置属性，这样不会出现上述的问题</p>
+
+			</div>
+		</div>
+	</div>
+</body>
+</html>

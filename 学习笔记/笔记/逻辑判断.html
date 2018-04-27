@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../bootstrap-3.3.7-dist/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="abstract-compare">
+			<div class="page-header">
+				<h2>宽松相等和严格相等</h2>
+			</div>
+			<div class="alert alert-warning">
+				<code>==</code>允许进行类型转换
+				<code>===</code>不允许进行类型装换
+			</div>
+			<h3>宽松相等</h3>
+			<p>下面就 x == y 进行说明</p>
+			<h4>1.字符串和数字的比较</h4>
+			<div class="alert alert-warning">
+				<p>1.如果Type(x) 是数字, Type(y) 是字符串, 那么返回 x == ToNumber(y) 的结果</p>
+				<p>2. 如果Type(x) 是字符串, Type(y) 是数字， 那么返回 ToNumber(x) == y 的结果</p>
+			</div>
+			<h4>2.其他类型和布尔值进行比较</h4>
+			<div class="alert alert-warning">
+				<p>1.如果Type(x) 是布尔值， 那么返回 ToNumber(x) == y的结果</p>
+				<p>2.如果Type(y) 是布尔值， 那么返回 x == ToNumber(y)的结果</p>
+			</div>
+			<h4>3. null 和 undefined 进行比较</h4>
+			<div class="alert alert-warning">
+				<p>1.如果x为null，y为undefined 那么返回true</p>
+				<p>1.如果x为undefined，y为null 那么返回true</p>
+				<p>关于null 和 undefined 注意</p>
+				<pre>
+					<var>
+						var a = null;
+						var b;
+						a == b       			// true
+						a > 0   				// false
+						a < 0   				// false
+						a == 0       			// false
+						a >= 0 					// true
+						a <= 0 					// true
+						b < 0  					// false
+						b > 0   				// false
+						b == 0    				// false
+						b >= 0					// true
+						b <= 0    				// true
+					</var>
+				</pre>
+				<p>从上面代码我们可能会有疑问， 为什么 null >= 0  null <= 0 是true呢</p>
+				<p>其实可以这么看 <code>null >= 0 </code> 就是 <code>null < 0</code>的结果取反 </p>
+			</div>
+			<h4>对象和非对象之间进行比较</h4>
+			<div class="alert alert-warning">
+				<p>1.如果Type(x) 是字符串或者数字，Type(y) 是对象, 那么返回 x == ToPrimitive(y) 的结果</p>
+				<p>1.如果Type(x) 是对象，Type(y) 是字符串或者数字, 那么返回 ToPrimitive(x) == y 的结果</p>
+				<p>布尔值会首先转换成数字</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

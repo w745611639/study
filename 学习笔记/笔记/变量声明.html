@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../bootstrap-3.3.7-dist/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="declare">
+			<div class="page-header">
+				<h2>变量申明</h2>
+			</div>
+			<p>在ES6中，有新的变量申明方式:<code>let和 const</code></p>
+			<p>在讲新的变量方式之前，就需要讲一下作用域了</p>
+			<p>在ES5及之前，作用域分为<code>全局作用域</code>和<code>函数作用域</code>，没有<code>块级作用域</code>(当然，有一点点例外)</p>
+			<p>也就是说<code>var 和 function </code>关键字申明的变量归全局或者函数作用域所有,看下面的例子</p>
+			<pre>
+				<var>
+					var arr = [];
+					for(var i = 0; i < 10; i ++) {
+						arr[i] = function () {
+							console.log(i);
+						}
+					}
+					arr[3]();  //   10;
+				</var>
+			</pre>
+			<p>观察上面的代码，我们可能会有些意外，为什么输出的是<code>10</code>而不是<code>3</code></p>
+			<p>这其实是和js的机制相关，我们在定义一个函数时，并不会解析里面的语句到底是什么含义，而只是简单检查基础的语法错误，那么也就是说，只有在执行的时候，才能知道里面到底是什么语句以及用到了哪些变量</p>
+			<p>这就意味着，如果引用了变量，那么是在执行函数的时候才去根据作用域寻找变量的位置及值的。而不是定义时就确定.</p>
+			<p>那么根据上述规则，当我们执行函数的时候，发现里面引用了一个<code>i</code>变量，然而函数自身的作用域中并没有i这个变量。</p>
+			<p>所以根据查找变量的规则，会向函数的上级作用域去寻找，在这里也就是全局域, 而这个全局作用域中，刚好有<code>i</code>这个变量，OK</p>
+			<p>那么<code>i</code>的值是什么呢,我们发现当<code>i=10</code>跳出循环，也就是说此时<code>i=10</code></p>
+			<p>所以输出的结果是10，而且我们可以意识到，<code>arr</code>数组中所有项都会输出10，因为它们都引用于同一个变量。</p>
+			<p>我们想要<code>arr[i]()</code>输出i,我们之前的做法通常利用一个闭包</p>
+			<pre>
+				<var>
+					var arr = [];
+					for(var i = 0; i < 10; i ++) {
+						(function (i) {
+							arr[i] = function () {
+								console.log(i);
+							}
+						}(i)) 
+					}
+					arr[5]()     // 5
+				</var>
+			</pre>
+			<p>我们利用一个立即执行函数来实现了10对10的闭包</p>
+			<p>在立即执行函数中，我们有一个<code>i</code>变量缓存着每次循环全局的i的值， 而立即执行函数的作用域不会被释放,因为我们将子函数（持有立即执行函数作用域引用）保存到了外部</p>
+			<p>这样，我们执行的时候，函数就会上他的作用域链中去寻找<code>i</code>变量, 由于立即执行函数中有这个变量，所以就不会去查找全局了</p>
+			<div class="alert alert-info">
+				由于在var 声明变量的特性，我们可以在全局中访问到。而按照我们一般的需求，我们是期望i变量只存在于for循环中，我们需要一种方法，能够实现我们的需求
+			</div>
+			<p>主角出场</p>
+			<p>随着ES6的出现，块级作用域的存在，我们可以很方便的实现这种操作</p>
+			<p>那么我们首先来介绍一下<code>let</code>声明变量的一些规则</p>
+			<p>1:<code>let</code>申明的变量归块级作用域所有 </p>
+			<p>2: 不能重复申明变量</p>
+			<p>3: 不存在变量提升，在变量完成之前使用这个变量会报错简称(TDZ)，暂时性死区</p>
+			<pre>
+				<var>
+					let a = 10;
+					let a = 20;   // Uncaught SyntaxError: Identifier 'a' has already been declared
+
+					var x = 10;
+
+					let x =20;   // 错误同上
+
+					--------------------------------------------
+					for(let i = 0; i < 5; i ++) {
+
+					}
+					console.log(i)  // i is not defined
+
+
+					-------------------------------------------
+					console.log(a)  	// a is not defined
+					let a = 10;
+
+
+					-------------------------------------
+					let y = x ;            // x is not defined;
+					let x = 10;
+				</var>
+			</pre>
+			<p>所以利用let的特性，我们可以轻松实现之前的功能</p>
+			<pre>
+				<var>
+					let arr = [];
+					for(let i = 0; i < 10; i ++) {
+						arr[i] = function () {
+							console.log(i)
+						}
+					}
+					arr[3]();   	// 3
+					console.log(i)  // i is not defined
+				</var>
+			</pre>
+			<p>这里面有几个注意点：</p>
+			<p>1: 每次循环都创建了新的块级作用域， 并声明了i; 这就和立即执行函数类似了；</p>
+			<p>2: for循环分为两个块级作用域， 条件区域 和 循环体区域部分，条件区域是循环体区域的父级作用域 </p>
+
+
+			<p><code>const</code>用于申明常量</p>
+			<p>注意点:</p>
+			<p>声明时必须赋值</p>
+			<p>声明完成后不能修改，const声明的变量保存的是内存地址，所以如果是原始值时不能重新赋值， 如果是引用值，那么在不改变内存地址的基础上是可以修改的.</p>
+		</div>
+
+	</div>
+</body>
+</html>
