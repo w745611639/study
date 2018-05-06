@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    </style>
+</head>
+
+<body>
+    <ol type="a" reversed>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ol>
+    <ul type="circle">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ul>
+    <img src="41.png">
+    <script>
+        // DOM数遍历  元素
+        
+        // 深度优先,递归实现
+        function deepTraverse (node) {
+            var arr = [];
+            printNode(node);
+            if(!node.children.length) {
+                return 
+            }
+            arr.push(...node.children);
+            while(arr.length) {
+                deepTraverse(arr.shift());
+            }
+        }
+
+        // 广度优先 使用队列模拟，先进先出
+       function wideTraverse (node) {
+           var queue = [], temp;
+           printNode(node);
+           if(!node.children.length) {
+               return 
+           }
+           queue.push(...node.children);
+           while(queue.length) {
+               // 删除并返回第一个元素
+               temp = queue.shift();
+               // 输出
+               printNode(temp);
+               if(!temp.children.length) {
+                    continue;
+               }
+               //把temp的所有子元素节点依次添加到queue尾部
+               Array.from(temp.children).forEach(ele => queue.push(ele));
+           }
+       }
+
+       function printNode(ele) {
+           console.log(ele);
+       }
+    </script>
+</body>
+</html>
